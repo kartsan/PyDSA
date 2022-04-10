@@ -13,7 +13,7 @@ import time
 import numpy
 import tkFont
 import sys
-import visa
+import vxi11
 from time import sleep
 from Tkinter import *
 from tkFileDialog import askopenfilename
@@ -112,6 +112,8 @@ Marker1y = 0
 
 Marker2x = 0                # marker pip 2
 Marker2y = 0
+
+Host_address = '127.0.0.1'
 
 if NUMPYenabled == True:
     try:
@@ -549,15 +551,12 @@ def Sweep():   # Read samples and store the data into the arrays
 
             TRACESopened = 1
 
+            scope =  vxi11.Instrument("TCPIP0::" + Host_address + "::INSTR")
             try:
 # Get the USB device, e.g. 'USB0::0x1AB1::0x0588::DS1ED141904883'
-                instruments = visa.get_instruments_list()
-                usb = filter(lambda x: 'USB' in x, instruments)
-                if len(usb) != 1:
-                    print 'Bad instrument list', instruments
-                    sys.exit(-1)
-                scope = visa.instrument(usb[0], timeout=20, chunk_size=1024000) # bigger timeout for long mem
-
+                result = scope.ask("*IDN?")
+#                scope = visa.instrument(usb[0], timeout=20, chunk_size=1024000) # bigger timeout for long mem
+                scope.write(":WAV:POIN:MODE RAW")
                 RUNstatus = 2
             except:                                         # If error in opening audio stream, show error
                 RUNstatus = 0
@@ -626,10 +625,13 @@ def Sweep():   # Read samples and store the data into the arrays
             root.update()       # update screen
 
 
-            signals= scope.ask(":WAV:DATA?")  #do this first
-            data_size = len(signals)
+#            signals= scope.ask(":WAV:DATA?")  #do this first
+#            data_size = len(signals)
+            scope.write(":WAV:DATA? CHAN1")  #do this first
+            signals= scope.read_raw()
+            signals=buffer(signals, 11)
 
-            SAMPLErate = scope.ask_for_values(':ACQ:SRAT?')[0] #do this second
+            SAMPLErate = float(scope.ask(':ACQ:SRAT?')) #do this second
             #print 'Data size:', SAMPLEsize, "Sample rate:", SAMPLErate
 
 
@@ -1270,6 +1272,11 @@ b = Button(frame3, text="LVL-1", width=Buttonwidth2, command=Blevel1)
 b.pack(side=RIGHT, padx=5, pady=5)
 
 # ================ Call main routine ===============================
+if (len(sys.argv) <= 1):
+    print("Usage: PyDSA.py <Rigol host address>")
+    exit(-1)
+
+Host_address = sys.argv[1]
 root.update()               # Activate updated screens
 #SELECTaudiodevice()
 Sweep()
