@@ -7,11 +7,13 @@ This is a version of which uses python-vxi11 package to connect to the scope via
 https://github.com/python-ivi/python-vxi11/
 
 For Ubuntu, you probably need to install these extra packages:
+
     # apt-get install python-tk python-numpy
 
 ## Usage
 
 Start with a host address to your Rigol scope:
+
     $ python PyDSA.py 192.168.1.55
 
 Changelog:  
