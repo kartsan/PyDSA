@@ -3,7 +3,7 @@ Spectrum Analyzer for the Rigol DS1054Z digital scope
 Original code:
 https://github.com/rheslip/PyDSA
 
-This is a version of which uses python-vxi11 package to connect to the scope via network. NI-VISA is then not required. Please install python-vxi11 first:
+This version uses python-vxi11 package to connect to the scope via network. NI-VISA is then not required. Please install python-vxi11 first:
 https://github.com/python-ivi/python-vxi11/
 
 For Ubuntu, you probably need to install these extra packages:
